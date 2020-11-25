@@ -4,47 +4,53 @@ import java.sql.*;
 
 public class DB_Utility {
 
-    static Connection conn;// make it static filed so we can reuse in every methods
+    static Connection conn; // make it static field so we can reuse in every methods we write
+    static Statement stmnt;
+    static ResultSet rs;
 
     public static void createConnection() {
 
-        String connectionStr = "jdbc:oracle:thin:@3.89.238.187:1521:XE";
+        String connectionStr = "jdbc:oracle:thin:@52.201.187.226:1521:XE";
         String username = "hr";
         String password = "hr";
-
         try {
-             conn = DriverManager.getConnection(connectionStr, username, password);
+            conn = DriverManager.getConnection(connectionStr, username, password);
             System.out.println("CONNECTION SUCCESSFUL !! ");
-
         } catch (SQLException e) {
             System.out.println("CONNECTION HAS FAILED !!! " + e.getMessage());
         }
     }
-    // Create a method called runQuery that accept a SQL Query
-    public static ResultSet runQuery(String query){
 
-       ResultSet rs = null;
+    // Create a method called runQuery that accept a SQL Query
+    // and return ResultSet Object
+    public static ResultSet runQuery(String query) {
+
+        ResultSet rs = null;
+//        ResultSet rs  = null;
         // reusing the connection built from previous method
         try {
-            Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-         rs = stmt.executeQuery(query);
+            Statement stmnt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            rs = stmnt.executeQuery(query);
         } catch (SQLException e) {
-            System.out.println("Error while getting resultSet "+e.getMessage());
+            System.out.println("Error while getting resultset " + e.getMessage());
         }
         return rs;
+
     }
 
-    public static void main(String[] args) throws SQLException {
+    // create a method to clean up all the connection statemnet and resultset
+    public static void destroy() {
 
-        createConnection();
+        try {
 
-        ResultSet rs = runQuery("SELECT * FROM REGIONS");
+            rs.close();
+            stmnt.close();
+            conn.close();
 
-        // print out second column first row
-        rs.next();
-        System.out.println("rs.getString(2) = "+rs.getString(2));
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+
+
     }
-
-
-
 }
